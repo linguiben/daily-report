@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>webbora-daily-report</name>
+    <groupId>com.webbora.daily-report</groupId>
+    <artifactId>webbora-daily-report</artifactId>
+    <version>1.0</version>
+    <packaging>pom</packaging>
+    <description>I love daily report!</description>
+
+    <modules>
+<!--        <module>daily-report-dependencies</module>-->
+        <module>webbora-daily-report-dependencies</module>
+        <module>webbora-daily-report-common</module>
+        <module>webbora-daily-report-admin</module>
+        <module>webbora-daily-report-service</module>
+    </modules>
+
+</project>

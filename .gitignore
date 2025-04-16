@@ -1,0 +1,17 @@
+**/classes/*
+**/*.class
+**/target/*
+**/.idea/*
+logs/*
+**/*.log
+**/*.iml
+*.textClipping
+**/target/
+.aider*
+
+#Ingore the sensitive files
+c3p0-config.xml
+jdbc.properties
+postgresql.properties
+mail.properties
+
