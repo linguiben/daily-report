@@ -19,8 +19,8 @@ public class App {
         ApplicationContext ctx = SpringApplication.run(App.class, args);
 
         // 2. 查看容器内的beans
-        String[] names = ctx.getBeanDefinitionNames();
-        Arrays.asList(names).stream().forEach(System.out::println);
+//        String[] names = ctx.getBeanDefinitionNames();
+//        Arrays.asList(names).stream().forEach(System.out::println);
 
     }
 }

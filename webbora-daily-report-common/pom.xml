@@ -47,6 +47,7 @@
         <dependency>
             <groupId>com.webbora.daily-report</groupId>
             <artifactId>webbora-daily-report-dependencies</artifactId>
+            <type>pom</type>
             <version>1.0</version>
         </dependency>
     </dependencies>

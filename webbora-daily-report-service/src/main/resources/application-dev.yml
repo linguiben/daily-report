@@ -1,7 +1,44 @@
-debug: true
+debug: false
 
 server:
   port: 8080
   servlet:
     context-path: /
 web-url: http://127.0.0.1:8080
+
+logging:
+  level:
+    root: info
+
+file-upload-path: data/upload
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+  lifecycle:
+    timeout-per-shutdown-phase: 30 # shutdown timeout
+
+# excel 数据保存的位置
+# sheet, startPosition, endPosition, desc
+#excel.data.map = {sheet: 1, startPosition: A1, endPosition: F9, desc: test}
+#    exhibition1:
+#      sheet: 1
+#      startPosition: A1
+#      endPosition: F9
+#      desc: "test"
+
+# 用Map<key, value>的方式存储excel数据存放的开始和结束位置
+excel:
+  data:
+    exhibitionMap:
+      exhibition1:
+        sheetName: Sheet1
+        startPosition: A1
+        endPosition: F9
+        desc: test
+      exhibition2:
+        sheetName: report1
+        startPosition: C2
+        endPosition: F6
+        desc: report1

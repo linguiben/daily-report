@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Exhibitions</title>
+</head>
+<body>
+<h1>Exhibitions</h1>
+<table border="1">
+    <thead>
+        <tr>
+            <th th:each="header : ${headers}" th:text="${header}"></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="row : ${rowList}">
+            <td th:each="cell : ${row}" th:text="${cell}"></td>
+        </tr>
+    </tbody>
+</table>
+<a href="/">Back to Home</a>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Succeed</title>
+    <style>
+        body {
+            text-align: center;
+        }
+        .container {
+            text-align: center;
+            display: flex;
+            margin-left: 100px;
+        }
+        .item {
+            margin-right: 10px; /* 可选，为了在项目之间创建间隔 */
+        }
+        .box {
+            margin: auto;
+            top: 0;
+            left: 0;
+            right: 0;
+            text-align: left;
+        }
+        .center {
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+        .subfoot .subfoot_zbdw {
+            color: #666;
+            text-align: center;
+            margin-top: -10px;
+            padding-bottom: 35px;
+        }
+    </style>
+</head>
+<body>
+<h1>Upload Succeed</h1>
+<p>File Name: <span th:text="${fileName}"></span></p>
+<p>File Size: <span th:text="${fileSize}"></span></p>
+<p>Upload Time: <span th:text="${uploadTime}"></span></p>
+<a href="/">Back to Home</a>
+</body>
+</html>

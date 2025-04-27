@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Error</title>
+</head>
+<body>
+<h1>There is an error occurred.</h1>
+<h2>please contact Webbora team.</h2>
+<p>Error Code: <span th:text="${errorCode}"></span></p>
+<p>Error Message: <span th:text="${errorMessage}"></span></p>
+<a href="/">Back to Home</a>
+</body>
+</html>

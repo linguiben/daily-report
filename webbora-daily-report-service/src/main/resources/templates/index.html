@@ -2,16 +2,90 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Upload Excel</title>
+    <title>Welcome to Webbora!</title>
 </head>
 <body>
 <h1>Upload Excel File</h1>
-<form method="post" action="/uploadAndView" enctype="multipart/form-data">
+
+<!-- 登录链接 -->
+<a href="/login">Login</a>
+<br><br>
+
+<!-- 注销按钮 -->
+<a href="/logout">Logout</a>
+<br><br>
+
+<script>
+    function validateViewExcelDataForm() {
+        const fileInput = document.querySelector('form[action="/uploadAndView"] input[name="file"]');
+        if (!fileInput.value) {
+            alert("Please select a file to view.");
+            return false;
+        }
+        return true;
+    }
+
+    function validateUploadForm() {
+        const fileInput = document.querySelector('form[action="/uploadAndSave"] input[name="file"]');
+        const shortDescInput = document.querySelector('form[action="/uploadAndSave"] input[name="shortDesc"]');
+        if (!fileInput.value) {
+            alert("Please select a file to upload.");
+            return false;
+        }
+        if (!shortDescInput.value.trim()) {
+            alert("Short Description cannot be empty.");
+            return false;
+        }
+        return true;
+    }
+</script>
+<!-- 上传和查看Excel文件的表单 -->
+<form method="post" action="/uploadAndView" enctype="multipart/form-data" onsubmit="return validateViewExcelDataForm()">
     <input type="file" name="file" />
+    <button type="submit">ViewExcelData</button>
+</form>
+<br><br>
+<form method="post" action="/uploadAndSave" enctype="multipart/form-data" onsubmit="return validateUploadForm()">
+    <input type="file" name="file" /><br>
+    <input type="text" name="shortDesc" placeholder="Short Description" /><br>
+    <textarea name="desc" placeholder="Description" rows="4" cols="50"></textarea><br>
     <button type="submit">Upload</button>
 </form>
 <br><br>
-<a href="/display">view excel data</a>
+<!--<a href="/display">Exhibition</a>-->
 
+<a href="#" onclick="showExcelFiles()">Exhibition</a>
+
+<!-- Modal for displaying Excel files -->
+<div id="fileModal" style="display:none; position:fixed; top:20%; left:30%; width:40%; background:white; border:1px solid black; padding:20px;">
+    <h3>Please Select Data Date</h3>
+    <ul id="fileList"></ul>
+    <button onclick="closeModal()">Close</button>
+</div>
+
+<script>
+    function showExcelFiles() {
+        fetch('/listExcelFiles')
+            .then(response => response.json())
+            .then(files => {
+                const fileList = document.getElementById('fileList');
+                fileList.innerHTML = '';
+                files.forEach(file => {
+                    const listItem = document.createElement('li');
+                    const link = document.createElement('a');
+                    link.href = `/viewExcel?fileName=${encodeURIComponent(file)}`;
+                    link.target = '_blank';
+                    link.textContent = file;
+                    listItem.appendChild(link);
+                    fileList.appendChild(listItem);
+                });
+                document.getElementById('fileModal').style.display = 'block';
+            });
+    }
+
+    function closeModal() {
+        document.getElementById('fileModal').style.display = 'none';
+    }
+</script>
 </body>
 </html>
