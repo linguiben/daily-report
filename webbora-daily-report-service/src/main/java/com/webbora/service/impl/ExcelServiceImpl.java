@@ -10,10 +10,8 @@ import com.webbora.config.ExcelDataConfig;
 import com.webbora.pojo.Person;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,7 +43,8 @@ public class ExcelServiceImpl implements com.webbora.service.ExcelService {
         List<String[]> rowList = new ArrayList<>();
         log.info("retrieve excel data from file: {}", file.getOriginalFilename());
         try (InputStream inputStream = file.getInputStream();
-             Workbook workbook = new XSSFWorkbook(inputStream)) {
+//             Workbook workbook = new XSSFWorkbook(inputStream)) {
+             Workbook workbook = createWorkbook(inputStream, file.getOriginalFilename())) {
             // retrieve the sheet name, startRow, endRow, startColumn, endColumn
             String sheetName = excelDataConfig.getExhibitionMap().get("exhibition2").get("sheetName");
             Sheet sheet = workbook.getSheet(sheetName);
@@ -105,7 +104,9 @@ public class ExcelServiceImpl implements com.webbora.service.ExcelService {
     public List<String[]> readExcel(String filePath) throws IOException {
         List<String[]> rowList = new ArrayList<>();
         log.info("retrieve excel data from filePath: {}", filePath);
-        try (FileInputStream fis = new FileInputStream(filePath); Workbook workbook = new XSSFWorkbook(fis)) {
+        try (FileInputStream fis = new FileInputStream(filePath);
+             Workbook workbook = createWorkbook(fis, filePath)) {
+//             Workbook workbook = new XSSFWorkbook(fis)) {
             // retrieve the sheet name, startRow, endRow, startColumn, endColumn
             String sheetName = excelDataConfig.getExhibitionMap().get("exhibition2").get("sheetName");
             Sheet sheet = workbook.getSheet(sheetName);
@@ -158,6 +159,18 @@ public class ExcelServiceImpl implements com.webbora.service.ExcelService {
             colIndex = colIndex * 26 + (columnName.charAt(i) - 'A' + 1);
         }
         return colIndex - 1; // Convert to zero-based index
+    }
+
+    private Workbook createWorkbook(InputStream inputStream, String fileName) throws IOException {
+        if (fileName.endsWith(".xlsx")) {
+            return new XSSFWorkbook(inputStream);
+        } else if (fileName.endsWith(".xls")) {
+            return new HSSFWorkbook(inputStream);
+        } else if (fileName.endsWith(".xlsb")) {
+            return WorkbookFactory.create(inputStream); // Supports .xlsb
+        } else {
+            throw new IllegalArgumentException("Unsupported file format: " + fileName);
+        }
     }
 }
 
