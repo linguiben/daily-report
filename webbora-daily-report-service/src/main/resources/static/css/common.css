@@ -1,0 +1,37 @@
+table {
+    border-collapse: collapse;
+    width: 70%;
+}
+th, td {
+    border: 1px solid #444;
+    padding: 6px 10px;
+    text-align: right;
+}
+th {
+    background-color: #3d5c1d;
+    color: white;
+}
+.section {
+    background-color: #eaf3e0;
+    font-weight: bold;
+    text-align: left;
+}
+.highlight {
+    background-color: #fff700;
+}
+caption {
+    text-align: left;
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 8px;
+}
+.asof {
+    margin-top: 10px;
+    font-size: 0.95em;
+    color: #555;
+}
+.region {
+    background-color: #eaf3e0;
+    font-weight: bold;
+    text-align: center;
+}

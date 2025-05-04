@@ -8,10 +8,17 @@ package com.webbora.service.impl;
 
 import com.webbora.config.ExcelDataConfig;
 import com.webbora.pojo.Person;
+import com.webbora.tools.ApachePoiXLSBReader;
+import com.webbora.tools.ExcelCommon;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.eventusermodel.XSSFBReader;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -50,14 +58,13 @@ public class ExcelServiceImpl implements com.webbora.service.ExcelService {
             Sheet sheet = workbook.getSheet(sheetName);
             String startPosition = excelDataConfig.getExhibitionMap().get("exhibition2").get("startPosition");
             String endPosition = excelDataConfig.getExhibitionMap().get("exhibition2").get("endPosition");
-            Integer[] startPositionIndex = getIndexPosition(startPosition);
-            Integer[] endPositionIndex = getIndexPosition(endPosition);
+            Integer[] startPositionIndex = ExcelCommon.getIndexPosition(startPosition);
+            Integer[] endPositionIndex = ExcelCommon.getIndexPosition(endPosition);
             rowList = readExcelRange(sheet,
                     startPositionIndex[1] , // startRow
                     startPositionIndex[0], // startColumn
                     endPositionIndex[1] , // endRow
                     endPositionIndex[0]); // endColumn
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -77,22 +84,34 @@ public class ExcelServiceImpl implements com.webbora.service.ExcelService {
             String[] rowData = new String[endCol - startCol + 1];
             for (int colNum = startCol; colNum <= endCol; colNum++) {
                 Cell cell = currentRow.getCell(colNum);
-                if (cell != null) {
-                    switch (cell.getCellType()) {
-                        case STRING:
-                            rowData[colNum - startCol] = cell.getStringCellValue();
-                            break;
-                        case NUMERIC:
-                            rowData[colNum - startCol] = String.valueOf(cell.getNumericCellValue());
-                            break;
-                        case BOOLEAN:
-                            rowData[colNum - startCol] = String.valueOf(cell.getBooleanCellValue());
-                            break;
-                        default:
-                            rowData[colNum - startCol] = "";
-                    }
-                } else {
+                if (cell == null) {
                     rowData[colNum - startCol] = "";
+                    continue;
+                }
+                // Check if the cell is part of a merged region
+                for (int i = 0; i < sheet.getNumMergedRegions(); i++) {
+                    CellRangeAddress range = sheet.getMergedRegion(i);
+                    if (range.isInRange(rowNum, colNum)) {
+                        // If the cell is part of a merged region, get the value from the first cell in the range
+                        Cell firstCell = sheet.getRow(range.getFirstRow()).getCell(range.getFirstColumn());
+                        if (firstCell != null) {
+                            rowData[colNum - startCol] = firstCell.getStringCellValue();
+                        }
+                        break;
+                    }
+                }
+                switch (cell.getCellType()) {
+                    case STRING:
+                        rowData[colNum - startCol] = cell.getStringCellValue();
+                        break;
+                    case NUMERIC:
+                        rowData[colNum - startCol] = String.valueOf(cell.getNumericCellValue());
+                        break;
+                    case BOOLEAN:
+                        rowData[colNum - startCol] = String.valueOf(cell.getBooleanCellValue());
+                        break;
+                    default:
+                        rowData[colNum - startCol] = "";
                 }
             }
             rowList.add(rowData);
@@ -103,17 +122,28 @@ public class ExcelServiceImpl implements com.webbora.service.ExcelService {
 
     public List<String[]> readExcel(String filePath) throws IOException {
         List<String[]> rowList = new ArrayList<>();
+        String sheetName = excelDataConfig.getExhibitionMap().get("exhibition1").get("sheetName");
+        String startPosition = excelDataConfig.getExhibitionMap().get("exhibition1").get("startPosition");
+        String endPosition = excelDataConfig.getExhibitionMap().get("exhibition1").get("endPosition");
         log.info("retrieve excel data from filePath: {}", filePath);
+        String suffix = filePath.substring(filePath.lastIndexOf("."));
+
+        // For .xlsb files
+        if (suffix.equalsIgnoreCase(".xlsb")) {
+            String[][] data = ApachePoiXLSBReader.readXLSBFile(filePath, sheetName, startPosition, endPosition);
+            for (String[] row : data) {
+                rowList.add(row);
+            }
+            log.debug("rowList: {}", Arrays.deepToString(rowList.toArray()));
+            return rowList;
+        }
+
+        // For .xlsx and .xls files
         try (FileInputStream fis = new FileInputStream(filePath);
              Workbook workbook = createWorkbook(fis, filePath)) {
-//             Workbook workbook = new XSSFWorkbook(fis)) {
-            // retrieve the sheet name, startRow, endRow, startColumn, endColumn
-            String sheetName = excelDataConfig.getExhibitionMap().get("exhibition2").get("sheetName");
             Sheet sheet = workbook.getSheet(sheetName);
-            String startPosition = excelDataConfig.getExhibitionMap().get("exhibition2").get("startPosition");
-            String endPosition = excelDataConfig.getExhibitionMap().get("exhibition2").get("endPosition");
-            Integer[] startPositionIndex = getIndexPosition(startPosition);
-            Integer[] endPositionIndex = getIndexPosition(endPosition);
+            Integer[] startPositionIndex = ExcelCommon.getIndexPosition(startPosition);
+            Integer[] endPositionIndex = ExcelCommon.getIndexPosition(endPosition);
             rowList = readExcelRange(sheet, startPositionIndex[1], // startRow
                     startPositionIndex[0], // startColumn
                     endPositionIndex[1], // endRow
@@ -123,51 +153,12 @@ public class ExcelServiceImpl implements com.webbora.service.ExcelService {
     }
 
 
-        public static Integer[] getIndexPosition(String position) {
-            String letters = "";
-            String numbers = "";
-
-            // Regular expression to match letters and numbers
-            Pattern pattern = Pattern.compile("([A-Za-z]+)(\\d+)");
-            Matcher matcher = pattern.matcher(position);
-
-            if (matcher.matches()) {
-                letters = matcher.group(1); // Group 1: Letters
-                numbers = matcher.group(2); // Group 2: Numbers
-            }
-
-            log.info("Letters of position: {}", letters);
-            log.info("Numbers of position: {}", numbers);
-
-            return new Integer[]{getColumnIndex(letters), Integer.parseInt(numbers) -1 };
-        }
-
-
-    /**
-     * Converts an Excel column name (e.g., "A", "AZ") to its corresponding zero-based column index.
-     *
-     * The method interprets the column name as a base-26 number, where 'A' corresponds to 1, 'B' to 2,
-     * and so on. For multi-character column names, it calculates the index using positional values.
-     *
-     * @param columnName The Excel column name to convert (e.g., "A", "AZ", "BA").
-     * @return The zero-based column index (e.g., "A" -> 0, "AZ" -> 51).
-     */
-    public static int getColumnIndex(String columnName) {
-        int colIndex = 0;
-        for (int i = 0; i < columnName.length(); i++) {
-            // Convert each character to its corresponding value and calculate the index
-            colIndex = colIndex * 26 + (columnName.charAt(i) - 'A' + 1);
-        }
-        return colIndex - 1; // Convert to zero-based index
-    }
-
     private Workbook createWorkbook(InputStream inputStream, String fileName) throws IOException {
-        if (fileName.endsWith(".xlsx")) {
+        final String FILE_NAME = fileName.toUpperCase();
+        if (FILE_NAME.endsWith(".XLSX")) {
             return new XSSFWorkbook(inputStream);
-        } else if (fileName.endsWith(".xls")) {
+        } else if (FILE_NAME.endsWith(".XLS")) {
             return new HSSFWorkbook(inputStream);
-        } else if (fileName.endsWith(".xlsb")) {
-            return WorkbookFactory.create(inputStream); // Supports .xlsb
         } else {
             throw new IllegalArgumentException("Unsupported file format: " + fileName);
         }

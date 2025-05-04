@@ -7,7 +7,6 @@ package com.webbora.controller;
  */
 
 import com.webbora.exception.BizException;
-import com.webbora.pojo.Person;
 import com.webbora.service.ExcelService;
 import com.webbora.service.FileSaveService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.websocket.server.PathParam;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -80,12 +80,21 @@ public class ExcelController {
         List<String> fileNames = new ArrayList<>();
         if (folder.exists() && folder.isDirectory()) {
             for (File file : folder.listFiles()) {
-                if (file.isFile() && file.getName().endsWith(".xlsx")) {
-                    fileNames.add(file.getName());
+                if(!file.isFile()){
+                    continue;
+                }
+                String name = file.getName();
+                if (name.endsWith(".xlsx") || name.endsWith(".xlsb")) {
+                    fileNames.add(name);
                 }
             }
         }
         log.info("Excel files in the directory: {}", fileNames);
         return fileNames;
+    }
+
+    @GetMapping("/exhibits/{exhibitId}")
+    public String exhibits(@PathVariable long exhibitId, Model model) {
+        return "exhibit" + exhibitId;
     }
 }

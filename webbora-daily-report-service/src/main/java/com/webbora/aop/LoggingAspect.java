@@ -7,7 +7,9 @@ import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * Aspect for logging user requests before controller methods are executed.
@@ -35,7 +37,10 @@ public class LoggingAspect {
         String method = request.getMethod();
         String uri = request.getRequestURI();
         String params = Arrays.toString(joinPoint.getArgs());
-
-        log.info("User Request: Method={}, URI={}, Params={}", method, uri, params);
+        String clientIp = request.getRemoteAddr();
+        HttpSession session = request.getSession();
+        // get username from session
+        String userName = Optional.ofNullable((String) session.getAttribute("username")).orElse("anonymous");
+        log.info("IP={}, User={}, Request: Method={}, URI={}, Params={}", clientIp, userName, method, uri, params);
     }
 }

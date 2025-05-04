@@ -3,12 +3,12 @@ debug: false
 server:
   port: 8080
   servlet:
-    context-path: /
+    context-path: /jupiter/webbora
 web-url: http://127.0.0.1:8080
 
 logging:
   level:
-    root: info
+    root: debug
 
 file-upload-path: data/upload
 spring:
@@ -33,9 +33,9 @@ excel:
   data:
     exhibitionMap:
       exhibition1:
-        sheetName: Sheet1
-        startPosition: A1
-        endPosition: F9
+        sheetName: exhibit1
+        startPosition: B1
+        endPosition: E19
         desc: test
       exhibition2:
         sheetName: report1

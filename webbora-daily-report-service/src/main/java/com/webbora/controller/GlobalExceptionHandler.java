@@ -44,6 +44,11 @@ public class GlobalExceptionHandler {
         return modelAndView;
     }
 
+    @ExceptionHandler(cn.dev33.satoken.exception.NotLoginException.class)
+    public String handleNotLoginException(cn.dev33.satoken.exception.NotLoginException ex) {
+        return "login";
+    }
+
     @ExceptionHandler(Exception.class)
     public ModelAndView handleGenericException(Exception ex) {
         ModelAndView modelAndView = new ModelAndView("error");

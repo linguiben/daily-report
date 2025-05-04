@@ -3,21 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <title>Exhibitions</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
 </head>
 <body>
 <h1>Exhibitions</h1>
+    <caption><th th:text="${rowList[0][0]}"></th></caption>
 <table border="1">
     <thead>
         <tr>
-            <th th:each="header : ${headers}" th:text="${header}"></th>
+            <th th:each="header : ${rowList[1]}" th:text="${header}"></th>
         </tr>
     </thead>
+    <tbody>
+        <tr th:each="cell : ${rowList[2]}">
+            <td th:text="${cell}" colspan="4"></td>
+        </tr>
+    </tbody>
     <tbody>
         <tr th:each="row : ${rowList}">
             <td th:each="cell : ${row}" th:text="${cell}"></td>
         </tr>
     </tbody>
 </table>
-<a href="/">Back to Home</a>
+<!-- 嵌入exhibit1.html -->
+<div th:replace="exhibit1 :: body"></div>
+<!--<div th:include="exhibit1 :: body"></div>-->
+
+<br><br>
+<a th:href="@{/}">Back to Home</a>
 </body>
 </html>

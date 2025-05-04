@@ -37,12 +37,12 @@ public class LoginController {
     @GetMapping("/logout")
     public String logout() {
         StpUtil.logout();
-        return "redirect:/login"; // 注销后重定向到登录页面
+        return "redirect:/"; // 注销后重定向到登录页面
     }
 
     @GetMapping({"/","/index"})
     public String index() {
-        if (!StpUtil.isLogin()) {
+            if (!StpUtil.isLogin()) {
             return "login"; // 未登录时重定向到login.html
         }
         return "index";

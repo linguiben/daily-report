@@ -28,6 +28,6 @@ public class SaTokenConfig implements WebMvcConfigurer {
         // 添加 Sa-Token 拦截器
         registry.addInterceptor(getSaInterceptor())
                 .addPathPatterns("/**") // 拦截所有路径
-                .excludePathPatterns("/login", "/","/index"); // 排除登录接口和首页
+                .excludePathPatterns("/login", "/"); // 排除登录接口和首页
     }
 }
