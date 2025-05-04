@@ -3,21 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <title>Webbora</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+        }
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #4CAF50;
+            text-align: center;
+        }
+        a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        form {
+            margin-bottom: 2rem;
+        }
+        form input, form textarea, form button {
+            display: block;
+            width: 100%;
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        form button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        form button:hover {
+            background-color: #45a049;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -20%);
+            width: 50%;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            z-index: 1000;
+        }
+        .modal h3 {
+            margin-top: 0;
+        }
+        .modal ul {
+            list-style: none;
+            padding: 0;
+        }
+        .modal ul li {
+            margin: 0.5rem 0;
+        }
+        .modal ul li a {
+            color: #4CAF50;
+        }
+        .modal button {
+            margin-top: 1rem;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+    </style>
 </head>
 <body>
-<h1>Upload Excel File</h1>
+<header>
+    <h1>Welcome to Webbora</h1>
+</header>
+<main>
+    <h1>Upload Excel File</h1>
 
-<!-- 登录链接 -->
-<a href="./login">Login</a>
-<br><br>
+    <div>
+        <a href="./login">Login</a> | <a href="./logout">Logout</a>
+    </div>
 
-<!-- 注销按钮 -->
-<a href="./logout">Logout</a>
-<br><br>
+    <form method="post" action="./uploadAndView" enctype="multipart/form-data" onsubmit="return validateViewExcelDataForm()">
+        <label for="viewFile">Select a file to view:</label>
+        <input type="file" id="viewFile" name="file" />
+        <button type="submit">View Excel Data</button>
+    </form>
+
+    <form method="post" action="./uploadAndSave" enctype="multipart/form-data" onsubmit="return validateUploadForm()">
+        <label for="uploadFile">Select a file to upload:</label>
+        <input type="file" id="uploadFile" name="file" />
+        <label for="shortDesc">Short Description:</label>
+        <input type="text" id="shortDesc" name="shortDesc" placeholder="Short Description" />
+        <label for="desc">Description:</label>
+        <textarea id="desc" name="desc" placeholder="Description" rows="4"></textarea>
+        <button type="submit">Upload</button>
+    </form>
+
+    <a href="#" onclick="showExcelFiles()">Exhibition</a>
+
+    <div id="fileModal" class="modal">
+        <h3>Please Select Data Date</h3>
+        <ul id="fileList"></ul>
+        <button onclick="closeModal()">Close</button>
+    </div>
+    <div id="overlay" class="overlay" onclick="closeModal()"></div>
+</main>
 
 <script>
     function validateViewExcelDataForm() {
-        const fileInput = document.querySelector('form[action="./uploadAndView"] input[name="file"]');
+        const fileInput = document.querySelector('#viewFile');
         if (!fileInput.value) {
             alert("Please select a file to view.");
             return false;
@@ -26,8 +149,8 @@
     }
 
     function validateUploadForm() {
-        const fileInput = document.querySelector('form[action="./uploadAndSave"] input[name="file"]');
-        const shortDescInput = document.querySelector('form[action="./uploadAndSave"] input[name="shortDesc"]');
+        const fileInput = document.querySelector('#uploadFile');
+        const shortDescInput = document.querySelector('#shortDesc');
         if (!fileInput.value) {
             alert("Please select a file to upload.");
             return false;
@@ -38,33 +161,7 @@
         }
         return true;
     }
-</script>
-<!-- 上传和查看Excel文件的表单 -->
-<form method="post" action="./uploadAndView" enctype="multipart/form-data" onsubmit="return validateViewExcelDataForm()">
-    <input type="file" name="file"/>
-    <button type="submit">ViewExcelData</button>
-</form>
-<br><br>
-<form method="post" action="./uploadAndSave" enctype="multipart/form-data" onsubmit="return validateUploadForm()">
-    <input type="file" name="file"/><br>
-    <input type="text" name="shortDesc" placeholder="Short Description"/><br>
-    <textarea name="desc" placeholder="Description" rows="4" cols="50"></textarea><br>
-    <button type="submit">Upload</button>
-</form>
-<br><br>
-<!--<a href="/display">Exhibition</a>-->
 
-<a href="#" onclick="showExcelFiles()">Exhibition</a>
-
-<!-- Modal for displaying Excel files -->
-<div id="fileModal"
-     style="display:none; position:fixed; top:20%; left:30%; width:40%; background:white; border:1px solid black; padding:20px;">
-    <h3>Please Select Data Date</h3>
-    <ul id="fileList"></ul>
-    <button onclick="closeModal()">Close</button>
-</div>
-
-<script>
     function showExcelFiles() {
         fetch('./listExcelFiles')
             .then(response => response.json())
@@ -81,11 +178,13 @@
                     fileList.appendChild(listItem);
                 });
                 document.getElementById('fileModal').style.display = 'block';
+                document.getElementById('overlay').style.display = 'block';
             });
     }
 
     function closeModal() {
         document.getElementById('fileModal').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
     }
 </script>
 </body>
